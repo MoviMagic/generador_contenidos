@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Series</title>
+  <link rel="stylesheet" href="styles_series.css">
+  <script type="module" src="series_script.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Agregar Serie a Firestore</h1>
+    <form id="series-form">
+      <input type="text" id="documentId" placeholder="ID del documento (ejemplo: 105-sex-and-the-city)" required>
+      <input type="text" id="name" placeholder="Nombre de la serie (ejemplo: Sexo en Nueva York)" required>
+      <input type="text" id="tmdbid" placeholder="TMDB ID (ejemplo: 105)" required>
+      <input type="text" id="category" placeholder="Categoría (ejemplo: Max)" required>
+      <label for="addedDate">Fecha de Adición:</label>
+      <input type="date" id="addedDate" required>
+      <h2>Temporadas</h2>
+      <div id="seasons-container">
+        <div class="season">
+          <label>Temporada 1</label>
+          <div id="episodes-container-1" class="episodes-container">
+            <input type="text" placeholder="URL del episodio 1" class="episode-url">
+          </div>
+          <button type="button" onclick="addEpisode(1)">Agregar Episodio</button>
+        </div>
+      </div>
+      <button type="button" onclick="addSeason()">Agregar Temporada</button>
+      <button type="submit">Agregar Serie</button>
+    </form>
+    <p id="message"></p>
+  </div>
+</body>
+
+</html>
