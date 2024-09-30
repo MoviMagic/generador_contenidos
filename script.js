@@ -3,12 +3,13 @@ import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstati
 
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "YOUR_FIREBASE_API_KEY",
-  authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
-  projectId: "YOUR_FIREBASE_PROJECT_ID",
-  storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-  appId: "YOUR_FIREBASE_APP_ID",
+  apiKey: "AIzaSyDhPRVu8n_pZQzJPVWNFlJonmj5KEYsF10",
+  authDomain: "movimagic.firebaseapp.com",
+  projectId: "movimagic",
+  storageBucket: "movimagic.appspot.com",
+  messagingSenderId: "518388279864",
+  appId: "1:518388279864:web:a6f699391ec5bb627c14cd",
+  measurementId: "G-GG65HJV2T6",
 };
 
 const app = initializeApp(firebaseConfig);
