@@ -66,6 +66,19 @@ button:hover {
   margin-top: 30px;
 }
 
+/* Mejora para pantalla grande */
+@media (min-width: 768px) {
+  #main-panel .generators {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .generator-button {
+    flex: 0 0 45%;
+    margin: 10px;
+  }
+}
+
 .generator-button {
   background-color: #1f80e0;
   color: white;
@@ -74,20 +87,25 @@ button:hover {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .generator-button:hover {
   background-color: #1473b5;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .admin-info {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #0c1b33;
+  padding: 10px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .admin-info p {
@@ -116,4 +134,18 @@ button:hover {
   display: block;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Ajustes para pantallas móviles */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+  .generator-button {
+    font-size: 1rem;
+    padding: 12px;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
 }
