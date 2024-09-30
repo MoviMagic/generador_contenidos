@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Películas - Firestore</title>
+  <link rel="stylesheet" href="styles_movies.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Agregar Película a Firestore</h1>
+    <form id="movie-form">
+      <input type="text" id="documentId" placeholder="ID de Documento (opcional)">
+      <input type="text" id="title" placeholder="Título de la Película" required>
+      <input type="text" id="tmdbId" placeholder="ID de TMDB (ejemplo: 519182)" required>
+      <input type="text" id="videoUrl" placeholder="URL del Video" required>
+
+      <label for="categories">Categorías (selecciona una o más):</label>
+      <select id="categories" multiple required>
+        <option value="Películas">Películas</option>
+        <option value="Infantil">Infantil</option>
+        <option value="Netflix">Netflix</option>
+        <option value="Prime Video">Prime Video</option>
+        <option value="Disney+">Disney+</option>
+        <option value="Max">Max</option>
+        <option value="Paramount+">Paramount+</option>
+        <option value="Animes">Animes</option>
+        <option value="Humor">Humor</option>
+        <option value="Conciertos">Conciertos</option>
+        <option value="Videoteca">Videoteca</option>
+      </select>
+
+      <input type="date" id="addedDate" required>
+      <button type="submit">Agregar Película</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script type="module" src="script_movies.js"></script>
+</body>
+
+</html>

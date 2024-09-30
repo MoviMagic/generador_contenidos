@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Principal - Generadores de Contenido</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div id="login-modal">
+    <div class="login-container">
+      <img src="https://od.lk/s/NzBfMTcxMjU4NDlf/movi2.png" alt="Logo" class="logo">
+      <h2>Iniciar Sesión Administrador</h2>
+      <form id="login-form">
+        <input type="email" id="admin-email" placeholder="Correo Electrónico" required>
+        <input type="password" id="admin-password" placeholder="Contraseña" required>
+        <button type="submit">Iniciar Sesión</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container" id="main-panel" style="display:none;">
+    <div class="admin-info">
+      <p id="admin-email-display"></p>
+      <button class="logout-button" id="logout-btn">Cerrar Sesión</button>
+    </div>
+    <h1>Panel Principal - Generadores de Contenido</h1>
+    <div class="generators">
+      <button onclick="location.href='movies_generator.html'" class="generator-button"><i class="fas fa-film"></i> Generador de Películas</button>
+      <button onclick="location.href='series_generator.html'" class="generator-button"><i class="fas fa-tv"></i> Generador de Series</button>
+      <button onclick="location.href='cursos_generator.html'" class="generator-button"><i class="fas fa-graduation-cap"></i> Generador de Cursos</button>
+      <button onclick="location.href='channels_generator.html'" class="generator-button"><i class="fas fa-satellite-dish"></i> Generador de Canales</button>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+
+</html>
