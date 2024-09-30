@@ -62,7 +62,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
 });
 
 // Función para agregar una nueva temporada
-function addSeason() {
+window.addSeason = function () {
   const seasonsContainer = document.getElementById('seasons-container');
   const newSeasonNumber = seasonsContainer.children.length + 1;
 
@@ -76,7 +76,7 @@ function addSeason() {
     <button type="button" onclick="addEpisode(${newSeasonNumber})">Agregar Episodio</button>
   `;
   seasonsContainer.appendChild(seasonDiv);
-}
+};
 
 // Función para agregar un nuevo episodio a una temporada
 window.addEpisode = function (seasonNumber) {
