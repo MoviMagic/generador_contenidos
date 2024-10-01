@@ -59,7 +59,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     // Agregar temporadas y episodios
     const seasonsContainer = document.getElementById('seasons-container');
     for (let i = 0; i < seasonsContainer.children.length; i++) {
-      const seasonNumber = (i + 1).toString(); // Asegurarse de que el número de temporada sea una cadena simple
+      const seasonNumber = (i + 1).toString(); // Convertir a cadena simple para mantener el formato consistente
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber);
 
@@ -67,7 +67,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
       for (let j = 0; j < episodesContainer.children.length; j++) {
         const episodeUrl = episodesContainer.children[j].value.trim();
         if (episodeUrl) {
-          const episodeNumber = (j + 1).toString(); // Asegurarse de que el número de episodio sea una cadena simple
+          const episodeNumber = (j + 1).toString(); // Convertir a cadena simple para mantener el formato consistente
           await setDoc(doc(seasonDocRef, 'episodes', episodeNumber), {
             videoUrl: episodeUrl
           });
