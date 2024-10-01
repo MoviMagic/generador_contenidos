@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Configuración de Firebase
@@ -15,10 +16,28 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+// Asegurarse de que el usuario esté autenticado antes de proceder
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+  } else {
+    alert("Debe iniciar sesión para agregar una serie.");
+    return;
+  }
+});
 
 // Manejar la creación de la serie
 document.getElementById('series-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  if (!currentUser) {
+    alert("Debe iniciar sesión para agregar una serie.");
+    return;
+  }
 
   // Obtener los valores del formulario
   const documentId = document.getElementById('documentId').value.trim();
@@ -29,7 +48,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
   const addedDate = Timestamp.fromDate(new Date(addedDateValue));
 
   try {
-    // Agregar el documento de la serie a la colección 'series'
+    // Agregar el documento de la serie
     await setDoc(doc(db, 'series', documentId), {
       name: name,
       tmdbid: tmdbid,
@@ -42,15 +61,11 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     for (let i = 0; i < seasonsContainer.children.length; i++) {
       const seasonNumber = i + 1;
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
-      
-      // Crear el documento de la temporada
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', String(seasonNumber));
-      await setDoc(seasonDocRef, {}); // Crear el documento vacío para la temporada
 
       // Agregar cada episodio dentro de la temporada
       for (let j = 0; j < episodesContainer.children.length; j++) {
-        const episodeInput = episodesContainer.children[j];
-        const episodeUrl = episodeInput.value.trim();
+        const episodeUrl = episodesContainer.children[j].value.trim();
         if (episodeUrl) {
           await setDoc(doc(seasonDocRef, 'episodes', String(j + 1)), {
             videoUrl: episodeUrl
@@ -92,4 +107,4 @@ window.addEpisode = function (seasonNumber) {
   episodeInput.placeholder = `URL del episodio ${newEpisodeNumber}`;
   episodeInput.classList.add('episode-url');
   episodesContainer.appendChild(episodeInput);
-};
+}
