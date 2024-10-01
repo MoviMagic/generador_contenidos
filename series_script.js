@@ -1,16 +1,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, updateDoc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, updateDoc, getDoc, Timestamp, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDhPRVu8n_pZQzJPVWNFlJonmj5KEYsF10",
-  authDomain: "movimagic.firebaseapp.com",
-  projectId: "movimagic",
-  storageBucket: "movimagic.appspot.com",
-  messagingSenderId: "518388279864",
-  appId: "1:518388279864:web:a6f699391ec5bb627c14cd",
-  measurementId: "G-GG65HJV2T6"
+  apiKey: "API_KEY_HERE",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 // Inicializar Firebase
@@ -30,7 +30,69 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Manejar la creación de la serie
+// Función para verificar si la serie ya existe y autocompletar la información
+document.getElementById('verify-series-btn').addEventListener('click', async () => {
+  const documentId = document.getElementById('documentId').value.trim();
+  if (!documentId) {
+    alert("Por favor ingrese el ID del documento.");
+    return;
+  }
+
+  try {
+    const seriesDocRef = doc(db, 'series', documentId);
+    const seriesDoc = await getDoc(seriesDocRef);
+
+    if (seriesDoc.exists()) {
+      // Autocompletar la información de la serie
+      const seriesData = seriesDoc.data();
+      document.getElementById('name').value = seriesData.name;
+      document.getElementById('tmdbid').value = seriesData.tmdbid;
+      document.getElementById('category').value = seriesData.category;
+      document.getElementById('addedDate').value = seriesData.addedDate.toDate().toISOString().substr(0, 10);
+
+      // Obtener las temporadas y episodios
+      const seasonsCollectionRef = collection(db, 'series', documentId, 'seasons');
+      const seasonsSnapshot = await getDocs(seasonsCollectionRef);
+
+      const seasonsContainer = document.getElementById('seasons-container');
+      seasonsContainer.innerHTML = ''; // Limpiar las temporadas existentes en el formulario
+
+      seasonsSnapshot.forEach(async (seasonDoc) => {
+        const seasonNumber = seasonDoc.id;
+        const seasonDiv = document.createElement('div');
+        seasonDiv.classList.add('season');
+        seasonDiv.innerHTML = `
+          <label>Temporada ${seasonNumber}</label>
+          <div id="episodes-container-${seasonNumber}" class="episodes-container"></div>
+          <button type="button" onclick="addEpisode(${seasonNumber})">Agregar Episodio</button>
+        `;
+        seasonsContainer.appendChild(seasonDiv);
+
+        // Obtener los episodios de la temporada
+        const episodesCollectionRef = collection(db, 'series', documentId, 'seasons', seasonNumber, 'episodes');
+        const episodesSnapshot = await getDocs(episodesCollectionRef);
+
+        const episodesContainer = document.getElementById(`episodes-container-${seasonNumber}`);
+        episodesSnapshot.forEach((episodeDoc) => {
+          const episodeNumber = episodeDoc.id;
+          const episodeData = episodeDoc.data();
+          const episodeInput = document.createElement('input');
+          episodeInput.type = 'text';
+          episodeInput.placeholder = `URL del episodio ${episodeNumber}`;
+          episodeInput.value = episodeData.videoUrl;
+          episodeInput.classList.add('episode-url');
+          episodesContainer.appendChild(episodeInput);
+        });
+      });
+    } else {
+      alert("La serie no existe en Firestore. Puede proceder a agregarla.");
+    }
+  } catch (error) {
+    alert("Error al verificar la serie: " + error.message);
+  }
+});
+
+// Manejar la creación o actualización de la serie
 document.getElementById('series-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -48,77 +110,41 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
   const addedDate = Timestamp.fromDate(new Date(addedDateValue));
 
   try {
-    // Verificar si la serie ya existe
-    const seriesDocRef = doc(db, 'series', documentId);
-    const seriesDoc = await getDoc(seriesDocRef);
+    // Agregar o actualizar el documento de la serie
+    await setDoc(doc(db, 'series', documentId), {
+      name: name,
+      tmdbid: tmdbid,
+      category: category,
+      addedDate: addedDate,
+    }, { merge: true });
 
-    if (!seriesDoc.exists()) {
-      // Agregar el documento de la serie
-      await setDoc(seriesDocRef, {
-        name: name,
-        tmdbid: tmdbid,
-        category: category,
-        addedDate: addedDate,
-      });
+    // Agregar temporadas y episodios
+    const seasonsContainer = document.getElementById('seasons-container');
+    for (let i = 0; i < seasonsContainer.children.length; i++) {
+      const seasonNumber = (i + 1).toString();
+      const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
+      const seasonDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber);
 
-      document.getElementById('message').innerText = "Serie agregada exitosamente";
-    } else {
-      alert("La serie ya existe. Puede agregar nuevas temporadas o episodios usando los botones correspondientes.");
+      // Crear un documento de temporada vacío para que Firestore lo registre correctamente
+      await setDoc(seasonDocRef, {}, { merge: true });
+
+      // Agregar cada episodio dentro de la temporada
+      for (let j = 0; j < episodesContainer.children.length; j++) {
+        const episodeUrl = episodesContainer.children[j].value.trim();
+        if (episodeUrl) {
+          const episodeNumber = (j + 1).toString();
+          await setDoc(doc(seasonDocRef, 'episodes', episodeNumber), {
+            videoUrl: episodeUrl
+          }, { merge: true });
+        }
+      }
     }
+
+    document.getElementById('message').innerText = "Serie agregada o actualizada exitosamente";
   } catch (error) {
     document.getElementById('message').innerText = "Error al agregar la serie: " + error.message;
   }
 });
-
-// Función para agregar una nueva temporada a una serie ya existente
-window.addSeasonToExistingSeries = async function () {
-  const documentId = prompt("Ingrese el ID del documento de la serie a la que desea agregar una temporada:");
-  if (!documentId) return;
-
-  const newSeasonNumber = prompt("Ingrese el número de la nueva temporada:");
-  if (!newSeasonNumber) return;
-
-  const seasonDocRef = doc(db, 'series', documentId, 'seasons', newSeasonNumber);
-
-  try {
-    const seasonDoc = await getDoc(seasonDocRef);
-    if (!seasonDoc.exists()) {
-      await setDoc(seasonDocRef, {});
-      alert(`Temporada ${newSeasonNumber} agregada a la serie ${documentId} exitosamente.`);
-    } else {
-      alert(`La temporada ${newSeasonNumber} ya existe en la serie ${documentId}.`);
-    }
-  } catch (error) {
-    alert("Error al agregar la temporada: " + error.message);
-  }
-};
-
-// Función para agregar nuevos episodios a una temporada existente
-window.addEpisodeToExistingSeason = async function () {
-  const documentId = prompt("Ingrese el ID del documento de la serie:");
-  const seasonNumber = prompt("Ingrese el número de la temporada a la que desea agregar episodios:");
-  if (!documentId || !seasonNumber) return;
-
-  const episodeNumber = prompt("Ingrese el número del nuevo episodio:");
-  if (!episodeNumber) return;
-
-  const episodeUrl = prompt(`Ingrese la URL del episodio ${episodeNumber}:`);
-  if (!episodeUrl) return;
-
-  const episodeDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber, 'episodes', episodeNumber);
-
-  try {
-    const episodeDoc = await getDoc(episodeDocRef);
-    if (!episodeDoc.exists()) {
-      await setDoc(episodeDocRef, { videoUrl: episodeUrl });
-      alert(`Episodio ${episodeNumber} agregado a la temporada ${seasonNumber} de la serie ${documentId} exitosamente.`);
-    } else {
-      alert(`El episodio ${episodeNumber} ya existe en la temporada ${seasonNumber} de la serie ${documentId}.`);
-    }
-  } catch (error) {
-    alert("Error al agregar el episodio: " + error.message);
-  }
-};
 
 // Función para agregar una nueva temporada en el formulario
 window.addSeason = function () {
