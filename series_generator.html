@@ -16,7 +16,22 @@
       <input type="text" id="documentId" placeholder="ID del documento (ejemplo: 105-sex-and-the-city)" required>
       <input type="text" id="name" placeholder="Nombre de la serie (ejemplo: Sexo en Nueva York)" required>
       <input type="text" id="tmdbid" placeholder="TMDB ID (ejemplo: 105)" required>
-      <input type="text" id="category" placeholder="Categoría (ejemplo: Max)" required>
+      
+      <!-- Selector para categoría -->
+      <label for="category">Categoría:</label>
+      <select id="category" required>
+        <option value="" disabled selected>Seleccione una categoría</option>
+        <option value="Series">Series</option>
+        <option value="Netflix">Netflix</option>
+        <option value="Prime Video">Prime Video</option>
+        <option value="Disney+">Disney+</option>
+        <option value="Max">Max</option>
+        <option value="Paramount+">Paramount+</option>
+        <option value="Teleseries">Teleseries</option>
+        <option value="Animes">Animes</option>
+        <option value="Asiáticos">Asiáticos</option>
+      </select>
+
       <label for="addedDate">Fecha de Adición:</label>
       <input type="date" id="addedDate" required>
       <h2>Temporadas</h2>

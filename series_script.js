@@ -43,7 +43,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
   const documentId = document.getElementById('documentId').value.trim();
   const name = document.getElementById('name').value.trim();
   const tmdbid = document.getElementById('tmdbid').value.trim();
-  const category = document.getElementById('category').value.trim();
+  const category = document.getElementById('category').value; // Obtener el valor del selector de categoría
   const addedDateValue = document.getElementById('addedDate').value;
   const addedDate = Timestamp.fromDate(new Date(addedDateValue));
 
