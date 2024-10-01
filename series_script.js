@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -29,7 +29,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
   const addedDate = Timestamp.fromDate(new Date(addedDateValue));
 
   try {
-    // Agregar el documento de la serie
+    // Agregar el documento de la serie a la colección 'series'
     await setDoc(doc(db, 'series', documentId), {
       name: name,
       tmdbid: tmdbid,
@@ -42,11 +42,15 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     for (let i = 0; i < seasonsContainer.children.length; i++) {
       const seasonNumber = i + 1;
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
+      
+      // Crear el documento de la temporada
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', String(seasonNumber));
+      await setDoc(seasonDocRef, {}); // Crear el documento vacío para la temporada
 
       // Agregar cada episodio dentro de la temporada
       for (let j = 0; j < episodesContainer.children.length; j++) {
-        const episodeUrl = episodesContainer.children[j].value.trim();
+        const episodeInput = episodesContainer.children[j];
+        const episodeUrl = episodeInput.value.trim();
         if (episodeUrl) {
           await setDoc(doc(seasonDocRef, 'episodes', String(j + 1)), {
             videoUrl: episodeUrl
@@ -88,4 +92,4 @@ window.addEpisode = function (seasonNumber) {
   episodeInput.placeholder = `URL del episodio ${newEpisodeNumber}`;
   episodeInput.classList.add('episode-url');
   episodesContainer.appendChild(episodeInput);
-}
+};
