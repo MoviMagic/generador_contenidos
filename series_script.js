@@ -59,15 +59,18 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     // Agregar temporadas y episodios
     const seasonsContainer = document.getElementById('seasons-container');
     for (let i = 0; i < seasonsContainer.children.length; i++) {
-      const seasonNumber = (i + 1).toString(); // Convertir a cadena simple para mantener el formato consistente
+      const seasonNumber = (i + 1).toString(); // Asegurarse de que el número de temporada sea una cadena simple, sin formato especial
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber);
+
+      // Crear un documento de temporada vacío para que Firestore lo registre correctamente
+      await setDoc(seasonDocRef, {});
 
       // Agregar cada episodio dentro de la temporada
       for (let j = 0; j < episodesContainer.children.length; j++) {
         const episodeUrl = episodesContainer.children[j].value.trim();
         if (episodeUrl) {
-          const episodeNumber = (j + 1).toString(); // Convertir a cadena simple para mantener el formato consistente
+          const episodeNumber = (j + 1).toString(); // Asegurarse de que el número de episodio sea una cadena simple
           await setDoc(doc(seasonDocRef, 'episodes', episodeNumber), {
             videoUrl: episodeUrl
           });
