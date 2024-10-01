@@ -1,4 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Configuración de Firebase
@@ -15,10 +16,28 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+
+let currentUser = null;
+
+// Asegurarse de que el usuario esté autenticado antes de proceder
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    currentUser = user;
+  } else {
+    alert("Debe iniciar sesión para agregar una serie.");
+    return;
+  }
+});
 
 // Manejar la creación de la serie
 document.getElementById('series-form').addEventListener('submit', async (e) => {
   e.preventDefault();
+
+  if (!currentUser) {
+    alert("Debe iniciar sesión para agregar una serie.");
+    return;
+  }
 
   // Obtener los valores del formulario
   const documentId = document.getElementById('documentId').value.trim();
@@ -40,7 +59,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     // Agregar temporadas y episodios
     const seasonsContainer = document.getElementById('seasons-container');
     for (let i = 0; i < seasonsContainer.children.length; i++) {
-      const seasonNumber = (i + 1).toString(); // Convertir a string
+      const seasonNumber = (i + 1).toString(); // Asegurarse de que el número de temporada sea una cadena simple
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber);
 
@@ -48,7 +67,8 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
       for (let j = 0; j < episodesContainer.children.length; j++) {
         const episodeUrl = episodesContainer.children[j].value.trim();
         if (episodeUrl) {
-          await setDoc(doc(seasonDocRef, 'episodes', (j + 1).toString()), {
+          const episodeNumber = (j + 1).toString(); // Asegurarse de que el número de episodio sea una cadena simple
+          await setDoc(doc(seasonDocRef, 'episodes', episodeNumber), {
             videoUrl: episodeUrl
           });
         }
@@ -73,7 +93,7 @@ window.addSeason = function () {
     <div id="episodes-container-${newSeasonNumber}" class="episodes-container">
       <input type="text" placeholder="URL del episodio 1" class="episode-url">
     </div>
-    <button type="button" onclick="addEpisode('${newSeasonNumber}')">Agregar Episodio</button>
+    <button type="button" onclick="addEpisode(${newSeasonNumber})">Agregar Episodio</button>
   `;
   seasonsContainer.appendChild(seasonDiv);
 };
