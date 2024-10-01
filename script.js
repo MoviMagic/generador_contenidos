@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -9,13 +9,14 @@ const firebaseConfig = {
   storageBucket: "movimagic.appspot.com",
   messagingSenderId: "518388279864",
   appId: "1:518388279864:web:a6f699391ec5bb627c14cd",
-  measurementId: "G-GG65HJV2T6",
+  measurementId: "G-GG65HJV2T6"
 };
 
+// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Manejar Login del Administrador
+// Manejar el inicio de sesión
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('admin-email').value;
@@ -23,18 +24,23 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const currentAdminEmail = userCredential.user.email;
+    const user = userCredential.user;
 
+    // Guardar el UID del usuario en localStorage
+    localStorage.setItem('userUID', user.uid);
+
+    // Mostrar el panel principal
     document.getElementById('login-modal').style.display = 'none';
     document.getElementById('main-panel').style.display = 'block';
-    document.getElementById('admin-email-display').innerText = `Administrador: ${currentAdminEmail}`;
+    document.getElementById('admin-email-display').innerText = `Administrador: ${user.email}`;
   } catch (error) {
     alert("Error en el inicio de sesión: " + error.message);
   }
 });
 
-// Cerrar sesión del administrador
+// Manejar el cierre de sesión
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await signOut(auth);
+  localStorage.removeItem('userUID'); // Eliminar el UID del usuario del localStorage
   location.reload();
 });
