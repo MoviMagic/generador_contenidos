@@ -14,13 +14,11 @@
     <h1>Agregar Serie a Firestore</h1>
     <form id="series-form">
       <input type="text" id="documentId" placeholder="ID del documento (ejemplo: 105-sex-and-the-city)" required>
+      <button type="button" id="verify-series-btn">Verificar Serie</button>
       <input type="text" id="name" placeholder="Nombre de la serie (ejemplo: Sexo en Nueva York)" required>
       <input type="text" id="tmdbid" placeholder="TMDB ID (ejemplo: 105)" required>
-      
-      <!-- Selector para categoría -->
-      <label for="category">Categoría:</label>
       <select id="category" required>
-        <option value="" disabled selected>Seleccione una categoría</option>
+        <option value="">Seleccione una categoría</option>
         <option value="Series">Series</option>
         <option value="Netflix">Netflix</option>
         <option value="Prime Video">Prime Video</option>
@@ -31,7 +29,6 @@
         <option value="Animes">Animes</option>
         <option value="Asiáticos">Asiáticos</option>
       </select>
-
       <label for="addedDate">Fecha de Adición:</label>
       <input type="date" id="addedDate" required>
       <h2>Temporadas</h2>
