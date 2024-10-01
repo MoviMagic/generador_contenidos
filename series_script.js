@@ -40,7 +40,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
     // Agregar temporadas y episodios
     const seasonsContainer = document.getElementById('seasons-container');
     for (let i = 0; i < seasonsContainer.children.length; i++) {
-      const seasonNumber = (i + 1).toString(); // Asegurarse de que sea un string numérico
+      const seasonNumber = (i + 1).toString(); // Convertir a string
       const episodesContainer = seasonsContainer.children[i].querySelector('.episodes-container');
       const seasonDocRef = doc(db, 'series', documentId, 'seasons', seasonNumber);
 
@@ -73,7 +73,7 @@ window.addSeason = function () {
     <div id="episodes-container-${newSeasonNumber}" class="episodes-container">
       <input type="text" placeholder="URL del episodio 1" class="episode-url">
     </div>
-    <button type="button" onclick="addEpisode(${newSeasonNumber})">Agregar Episodio</button>
+    <button type="button" onclick="addEpisode('${newSeasonNumber}')">Agregar Episodio</button>
   `;
   seasonsContainer.appendChild(seasonDiv);
 };
