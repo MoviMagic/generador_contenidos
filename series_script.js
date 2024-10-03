@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -30,7 +30,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Manejar la creación de la serie
+// Manejar la creación o actualización de la serie
 document.getElementById('series-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -84,7 +84,7 @@ document.getElementById('series-form').addEventListener('submit', async (e) => {
   }
 });
 
-// Función para verificar si la serie ya está en Firestore
+// Función para verificar si la serie ya está en Firestore y completar los episodios
 document.getElementById('verify-series-btn').addEventListener('click', async () => {
   const documentId = document.getElementById('documentId').value.trim();
   if (!documentId) {
@@ -103,6 +103,9 @@ document.getElementById('verify-series-btn').addEventListener('click', async () 
       document.getElementById('category').value = data.category || '';
       document.getElementById('addedDate').value = data.addedDate ? data.addedDate.toDate().toISOString().split('T')[0] : '';
 
+      // Cargar las temporadas y episodios
+      await cargarTemporadasYCapitulos(documentId);
+
       document.getElementById('message').innerText = "La serie ya está agregada. Puede actualizarla.";
     } else {
       document.getElementById('message').innerText = "La serie no está en Firestore. Puede agregarla.";
@@ -111,6 +114,41 @@ document.getElementById('verify-series-btn').addEventListener('click', async () 
     document.getElementById('message').innerText = "Error al verificar la serie: " + error.message;
   }
 });
+
+// Función para cargar temporadas y episodios desde Firestore
+async function cargarTemporadasYCapitulos(documentId) {
+  const seasonsContainer = document.getElementById('seasons-container');
+  seasonsContainer.innerHTML = ''; // Limpiar el contenido actual
+
+  const seasonsRef = collection(db, 'series', documentId, 'seasons');
+  const seasonsSnapshot = await getDocs(seasonsRef);
+
+  seasonsSnapshot.forEach(async (seasonDoc) => {
+    const seasonNumber = seasonDoc.id;
+    const seasonDiv = document.createElement('div');
+    seasonDiv.classList.add('season');
+    seasonDiv.innerHTML = `
+      <label>Temporada ${seasonNumber}</label>
+      <div id="episodes-container-${seasonNumber}" class="episodes-container"></div>
+      <button type="button" onclick="addEpisode(${seasonNumber})">Agregar Episodio</button>
+    `;
+
+    seasonsContainer.appendChild(seasonDiv);
+
+    const episodesContainer = document.getElementById(`episodes-container-${seasonNumber}`);
+    const episodesRef = collection(db, 'series', documentId, 'seasons', seasonNumber, 'episodes');
+    const episodesSnapshot = await getDocs(episodesRef);
+
+    episodesSnapshot.forEach((episodeDoc) => {
+      const episodeData = episodeDoc.data();
+      const episodeInput = document.createElement('input');
+      episodeInput.type = 'text';
+      episodeInput.value = episodeData.videoUrl || '';
+      episodeInput.classList.add('episode-url');
+      episodesContainer.appendChild(episodeInput);
+    });
+  });
+}
 
 // Función para agregar una nueva temporada
 window.addSeason = function () {
