@@ -13,10 +13,9 @@
 
 <body>
   <div class="container">
-    <h1>Generador de Películas</h1>
+    <h1>Agregar Película a Firestore</h1>
     <form id="movie-form">
       <input type="text" id="documentId" placeholder="ID de Documento (opcional)">
-      <button type="button" id="verify-movie-btn">Verificar Película</button>
       <input type="text" id="title" placeholder="Título de la Película" required>
       <input type="text" id="tmdbId" placeholder="ID de TMDB (ejemplo: 519182)" required>
       <input type="text" id="videoUrl" placeholder="URL del Video" required>
@@ -37,11 +36,9 @@
       </select>
 
       <input type="date" id="addedDate" required>
-      <button type="submit">Agregar/Actualizar Película</button>
+      <button type="submit">Agregar Película</button>
     </form>
     <p id="message"></p>
-
-    <button id="refresh-page-btn">Actualizar Página</button>
   </div>
 
   <script type="module" src="script_movies.js"></script>
