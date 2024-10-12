@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc, Timestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -16,20 +15,8 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
-// Verificar si el usuario está autenticado
-let currentUser = null;
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    currentUser = user;
-    console.log("Usuario autenticado:", user.email);
-  } else {
-    alert("Debe iniciar sesión para poder agregar o actualizar una película.");
-    window.location.href = 'login.html'; // Redirigir a la página de inicio de sesión si no está autenticado
-  }
-});
+// Eliminar la verificación de autenticación ya que el usuario ya está autenticado en la página principal
 
 // Manejar la verificación de la película
 document.getElementById('verify-movie-btn').addEventListener('click', async () => {
@@ -72,11 +59,6 @@ document.getElementById('verify-movie-btn').addEventListener('click', async () =
 // Manejar la creación o actualización de la película
 document.getElementById('movie-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-
-  if (!currentUser) {
-    alert("Debe iniciar sesión para agregar o actualizar una película.");
-    return;
-  }
 
   // Obtener los valores del formulario
   const documentIdInput = document.getElementById('documentId').value.trim();
