@@ -26,75 +26,97 @@ onAuthStateChanged(auth, (user) => {
     currentUser = user;
     console.log("Usuario autenticado:", user.email);
   } else {
-    alert("Debe iniciar sesión para poder agregar o actualizar una película.");
+    alert("Debe iniciar sesión para poder agregar una película.");
     window.location.href = 'login.html'; // Cambia a la ruta de tu página de inicio de sesión
   }
 });
 
-// Verificar si la película ya existe en Firestore
-document.getElementById('verify-movie-btn').addEventListener('click', async () => {
-  const documentIdInput = document.getElementById('documentId').value.trim();
-  if (!documentIdInput) {
-    alert("Por favor, ingresa el ID del documento para verificar.");
-    return;
-  }
+// Esperar a que el DOM esté completamente cargado
+document.addEventListener('DOMContentLoaded', function () {
+  const movieForm = document.getElementById('movie-form');
+  const verifyButton = document.getElementById('verify-movie-btn');
+  const refreshButton = document.getElementById('refresh-page-btn');
 
-  const docRef = doc(db, 'movies', documentIdInput);
-  const docSnap = await getDoc(docRef);
+  // Función para manejar la creación de la película
+  movieForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  if (docSnap.exists()) {
-    const data = docSnap.data();
-    document.getElementById('title').value = data.title;
-    document.getElementById('tmdbId').value = data.tmdbId;
-    document.getElementById('videoUrl').value = data.videoUrl;
-    document.getElementById('addedDate').value = data.addedDate.toDate().toISOString().split('T')[0];
-
-    const categoriesSelect = document.getElementById('categories');
-    for (const option of categoriesSelect.options) {
-      option.selected = data.categories.includes(option.value);
+    // Verificar si el usuario está autenticado antes de continuar
+    if (!currentUser) {
+      alert("Debe iniciar sesión para agregar una película.");
+      return;
     }
 
-    document.getElementById('message').innerText = "Película encontrada. Puedes actualizar la información.";
-  } else {
-    document.getElementById('message').innerText = "Película no encontrada. Puedes agregarla.";
-  }
-});
+    // Obtener los valores del formulario
+    const documentIdInput = document.getElementById('documentId').value.trim();
+    const title = document.getElementById('title').value.trim();
+    const tmdbId = document.getElementById('tmdbId').value.trim();
+    const videoUrl = document.getElementById('videoUrl').value.trim();
+    const addedDateValue = document.getElementById('addedDate').value;
 
-// Manejar la creación o actualización de la película
-document.getElementById('movie-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
+    // Convertir la fecha de adición a un objeto Timestamp
+    const addedDate = Timestamp.fromDate(new Date(addedDateValue));
 
-  if (!currentUser) {
-    alert("Debe iniciar sesión para agregar o actualizar una película.");
-    return;
-  }
+    // Obtener las categorías seleccionadas
+    const categoriesSelect = document.getElementById('categories');
+    const selectedCategories = Array.from(categoriesSelect.selectedOptions).map(option => option.value);
 
-  // Obtener los valores del formulario
-  const documentIdInput = document.getElementById('documentId').value.trim();
-  const title = document.getElementById('title').value.trim();
-  const tmdbId = document.getElementById('tmdbId').value.trim();
-  const videoUrl = document.getElementById('videoUrl').value.trim();
-  const addedDateValue = document.getElementById('addedDate').value;
-  const addedDate = Timestamp.fromDate(new Date(addedDateValue));
+    try {
+      // Crear el ID del documento usando el valor proporcionado o generarlo automáticamente
+      const documentId = documentIdInput || `${tmdbId}-${title.replace(/\s+/g, '-').toLowerCase()}`;
 
-  // Obtener las categorías seleccionadas
-  const categoriesSelect = document.getElementById('categories');
-  const selectedCategories = Array.from(categoriesSelect.selectedOptions).map(option => option.value);
+      // Agregar o actualizar el documento a Firestore
+      await setDoc(doc(db, 'movies', documentId), {
+        title: title,
+        tmdbId: tmdbId,
+        videoUrl: videoUrl,
+        categories: selectedCategories,
+        addedDate: addedDate // Timestamp
+      }, { merge: true });
 
-  try {
-    const documentId = documentIdInput || `${tmdbId}-${title.replace(/\s+/g, '-').toLowerCase()}`;
+      // Mostrar mensaje de éxito
+      document.getElementById('message').innerText = "Película agregada o actualizada exitosamente";
+    } catch (error) {
+      document.getElementById('message').innerText = "Error al agregar la película: " + error.message;
+    }
+  });
 
-    // Agregar o actualizar el documento en Firestore
-    await setDoc(doc(db, 'movies', documentId), {
-      title: title,
-      tmdbId: tmdbId,
-      videoUrl: videoUrl,
-      categories: selectedCategories,
-      addedDate: addedDate
-    }, { merge: true });
+  // Función para verificar si la película ya está en Firestore
+  verifyButton.addEventListener('click', async () => {
+    const documentId = document.getElementById('documentId').value.trim();
+    if (!documentId) {
+      alert("Por favor ingrese el ID del documento para verificar.");
+      return;
+    }
 
-    document.getElementById('message').innerText = "Película agregada o actualizada exitosamente";
-  } catch (error) {
-    document.getElementById('message').innerText = "Error al agregar o actualizar la película: " + error.message;
-  }
+    try {
+      const docRef = doc(db, 'movies', documentId);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        document.getElementById('title').value = data.title || '';
+        document.getElementById('tmdbId').value = data.tmdbId || '';
+        document.getElementById('videoUrl').value = data.videoUrl || '';
+        const addedDate = data.addedDate.toDate().toISOString().split('T')[0];
+        document.getElementById('addedDate').value = addedDate;
+
+        const categoriesSelect = document.getElementById('categories');
+        Array.from(categoriesSelect.options).forEach(option => {
+          option.selected = data.categories.includes(option.value);
+        });
+
+        document.getElementById('message').innerText = "La película ya está agregada. Puedes actualizarla.";
+      } else {
+        document.getElementById('message').innerText = "La película no está en Firestore. Puedes agregarla.";
+      }
+    } catch (error) {
+      document.getElementById('message').innerText = "Error al verificar la película: " + error.message;
+    }
+  });
+
+  // Botón para actualizar la página
+  refreshButton.addEventListener('click', () => {
+    location.reload();
+  });
 });

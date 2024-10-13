@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
   <div class="container">
     <h1>Agregar Película a Firestore</h1>
@@ -29,24 +27,24 @@
         <option value="Disney+">Disney+</option>
         <option value="Max">Max</option>
         <option value="Paramount+">Paramount+</option>
-        <option value="Animes">Animes</option>
-        <option value="Humor">Humor</option>
-        <option value="Conciertos">Conciertos</option>
-        <option value="Videoteca">Videoteca</option>
-        <!-- Nuevas categorías agregadas -->
         <option value="Vix">Vix</option>
         <option value="Crunchyroll">Crunchyroll</option>
         <option value="tv+">tv+</option>
         <option value="hulu">hulu</option>
+        <option value="Animes">Animes</option>
+        <option value="Humor">Humor</option>
+        <option value="Conciertos">Conciertos</option>
+        <option value="Videoteca">Videoteca</option>
       </select>
 
       <input type="date" id="addedDate" required>
       <button type="submit">Agregar Película</button>
+      <button type="button" id="verify-movie-btn">Verificar Película</button>
+      <button type="button" id="refresh-page-btn">Actualizar Página</button>
     </form>
     <p id="message"></p>
   </div>
 
   <script type="module" src="script_movies.js"></script>
 </body>
-
 </html>
